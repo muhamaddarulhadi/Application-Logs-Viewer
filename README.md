@@ -1,7 +1,9 @@
 # Application-Logs-Viewer
 
 > Repository: <https://github.com/muhamaddarulhadi/Application-Logs-Viewer>
-> Live Tutorial  [Website Tutorial](https://muhamaddarulhadi.github.io/Application-Logs-Viewer/)
+
+> [Website Tutorial](https://muhamaddarulhadi.github.io/Application-Logs-Viewer/)
+
 > Created by [muhamaddarulhadi](https://github.com/muhamaddarulhadi)
 
 **Live tutorial:** open `index.html` in a browser, or publish it with GitHub Pages (see [Project structure](#project-structure)).
