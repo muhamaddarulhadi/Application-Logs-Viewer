@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Application-Logs-Viewer</title>
+<meta name="description" content="Get-AppEventReport.ps1 turns the Windows Application log errors and warnings into an HTML report, an Excel file and a CSV. Step-by-step tutorial.">
+<meta name="theme-color" content="#012456">
+<meta property="og:title" content="Application-Logs-Viewer">
+<meta property="og:description" content="PowerShell script that turns Application log errors and warnings into a searchable HTML report, an Excel file and a CSV.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#top" aria-label="Get-AppEventReport, back to top">
+      <span class="glyph" aria-hidden="true">&gt;_</span>
+      <b>Get-AppEventReport</b>
+    </a>
+    <div class="top-act">
+      <a class="gh" href="https://github.com/muhamaddarulhadi/Application-Logs-Viewer" target="_blank" rel="noopener noreferrer" aria-label="Application-Logs-Viewer on GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        <span>Application-Logs-Viewer</span>
+      </a>
+      <button class="icon-btn" id="theme" type="button" aria-label="Switch between light and dark theme"></button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap page" id="top">
+  <nav class="toc" id="toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#overview">Overview</a>
+    <a href="#quick-start">Quick start</a>
+    <a href="#builder">Command builder</a>
+    <a href="#parameters">Parameters</a>
+    <a href="#examples">Examples</a>
+    <a href="#output">Output files</a>
+    <a href="#report">The report</a>
+    <a href="#excel">Excel export</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#good-to-know">Good to know</a>
+  </nav>
+
+  <main>
+    <!-- ================= Overview ================= -->
+    <section id="overview">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">PowerShell script for Windows</p>
+          <h1>Application log errors, in a report you can search.</h1>
+          <p class="lede"><code>Get-AppEventReport.ps1</code> reads the Error and Warning events from Event Viewer &gt; Windows Logs &gt; Application for any date range, then writes an interactive HTML report, an Excel file and a CSV.</p>
+          <div class="cta">
+            <a class="btn primary" href="#quick-start">Start the tutorial</a>
+            <a class="btn" href="https://github.com/muhamaddarulhadi/Application-Logs-Viewer" target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              View on GitHub
+            </a>
+          </div>
+          <ul class="facts" aria-label="Key facts">
+            <li>Read-only</li>
+            <li>Works offline</li>
+            <li>No Excel needed</li>
+            <li>PowerShell 5.1 and 7</li>
+          </ul>
+        </div>
+
+        <div class="term" role="img" aria-label="Sample PowerShell session running Get-AppEventReport.ps1 and listing the three files it creates">
+          <div class="term-bar"><i></i><i></i><i></i><span>Windows PowerShell &middot; sample output</span></div>
+<pre><span class="t-dim">PS C:\Scripts&gt;</span> .\Get-AppEventReport.ps1
+Start date [default: 2026-10-06]: 2026-10-01
+End date [default: 2026-10-13]:
+<span class="t-c">Reading Application log from 10/1/2026 12:00:00 AM to 10/13/2026 11:59:59 PM ...</span>
+<span class="t-c">Found 214 events. Processing ...</span>
+
+<span class="t-g">Report created:</span>
+  HTML : C:\Users\you\Desktop\EventReports\AppEvents_20261013_144502.html
+  CSV  : C:\Users\you\Desktop\EventReports\AppEvents_20261013_144502.csv
+  XLSX : C:\Users\you\Desktop\EventReports\AppEvents_20261013_144502.xlsx
+
+<span class="t-dim">PS C:\Scripts&gt;</span> <span class="caret"></span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Quick start ================= -->
+    <section id="quick-start">
+      <p class="eyebrow">Quick start</p>
+      <h2>From download to report in seven steps</h2>
+      <p class="sec-intro">You need Windows 10 or 11 (or Windows Server 2016 and later) and the PowerShell that ships with it. A normal user account can usually read the Application log. Excel and an internet connection are not required.</p>
+
+      <ol class="steps">
+        <li>
+          <h3>Get the project</h3>
+          <p>Clone the repository with Git. The script is <code>Get-AppEventReport.ps1</code> in the top folder.</p>
+          <div class="code"><pre class="prompt wrap-lines">git clone https://github.com/muhamaddarulhadi/Application-Logs-Viewer.git C:\Scripts\Application-Logs-Viewer</pre></div>
+          <p class="note">No Git? Use Code &gt; Download ZIP on the GitHub page and extract it to <code>C:\Scripts\Application-Logs-Viewer</code>.</p>
+        </li>
+        <li>
+          <h3>Open PowerShell</h3>
+          <p>Open the Start menu, type <code>PowerShell</code> and press Enter. Run it as Administrator only if you later get an access error.</p>
+        </li>
+        <li>
+          <h3>Go to the script folder</h3>
+          <div class="code"><pre class="prompt">cd C:\Scripts\Application-Logs-Viewer</pre></div>
+        </li>
+        <li>
+          <h3>Allow the script for this window</h3>
+          <p>Windows may refuse to run scripts. This command lifts the restriction for the current PowerShell window only and resets when you close it.</p>
+          <div class="code"><pre class="prompt">Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</pre></div>
+          <p class="note">If you downloaded the file, also remove the "downloaded from the internet" flag once:</p>
+          <div class="code"><pre class="prompt">Unblock-File .\Get-AppEventReport.ps1</pre></div>
+        </li>
+        <li>
+          <h3>Run the script</h3>
+          <div class="code"><pre class="prompt">.\Get-AppEventReport.ps1</pre></div>
+        </li>
+        <li>
+          <h3>Enter the dates</h3>
+          <p>The script asks for a start and an end date. Press Enter to accept the default shown in brackets: seven days ago for the start, today for the end. A date without a time covers the whole day.</p>
+        </li>
+        <li>
+          <h3>Open the report</h3>
+          <p>The HTML report opens in your browser and the three file locations are printed in the console. Files go to <code>Desktop\EventReports</code> unless you choose another folder.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ================= Builder ================= -->
+    <section id="builder">
+      <p class="eyebrow">Command builder</p>
+      <h2>Build the exact command to paste</h2>
+      <p class="sec-intro">Pick a date range and options. The command updates as you type. Leave a date empty and PowerShell asks for it when the script starts.</p>
+
+      <div class="builder">
+        <div class="presets" role="group" aria-label="Date presets">
+          <span>Presets</span>
+          <button class="chip" type="button" data-preset="today">Today</button>
+          <button class="chip" type="button" data-preset="7">Last 7 days</button>
+          <button class="chip" type="button" data-preset="30">Last 30 days</button>
+          <button class="chip" type="button" data-preset="month">This month</button>
+        </div>
+
+        <div class="fields">
+          <div class="field">
+            <label for="f-start">Start date</label>
+            <input type="date" id="f-start" value="2026-10-01">
+            <small>First day to include.</small>
+          </div>
+          <div class="field">
+            <label for="f-end">End date</label>
+            <input type="date" id="f-end" value="2026-10-13">
+            <small>Last day to include, through 23:59:59.</small>
+          </div>
+          <div class="field wide">
+            <label for="f-folder">Output folder (optional)</label>
+            <input type="text" id="f-folder" placeholder="Default is Desktop\EventReports" value="D:\Reports" autocomplete="off" spellcheck="false">
+            <small>Where the HTML, CSV and XLSX files are saved. The folder is created if it does not exist.</small>
+          </div>
+        </div>
+
+        <div class="switches">
+          <label class="sw" for="f-crit"><input type="checkbox" id="f-crit"><span><b>Include Critical events</b><small>Adds <code>-IncludeCritical</code>. Without it only Error and Warning are collected.</small></span></label>
+          <label class="sw" for="f-open"><input type="checkbox" id="f-open" checked><span><b>Open the report when done</b><small>Adds <code>-OpenReport</code>. It also opens on its own if you are asked for dates.</small></span></label>
+        </div>
+
+        <div>
+          <div class="code"><pre class="wrap-lines prompt" id="built" aria-live="polite"></pre></div>
+          <p class="built-note" id="built-note"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Parameters ================= -->
+    <section id="parameters">
+      <p class="eyebrow">Reference</p>
+      <h2>Parameters</h2>
+      <p class="sec-intro">If you pass both dates the script runs without any prompt, which is what you want for scheduled tasks.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>-StartDate</code></td><td class="tag">date</td><td class="dim">Prompted, 7 days ago</td><td>First day to include. Accepts <code>2026-10-01</code>, <code>10/01/2026</code> or a date with time such as <code>"2026-10-01 08:00"</code>.</td></tr>
+            <tr><td><code>-EndDate</code></td><td class="tag">date</td><td class="dim">Prompted, today</td><td>Last day to include. A date without a time covers the whole day. It must not be earlier than <code>-StartDate</code>.</td></tr>
+            <tr><td><code>-OutputFolder</code></td><td class="tag">path</td><td class="dim"><code>Desktop\EventReports</code></td><td>Where the HTML, CSV and XLSX files are saved. Created if missing.</td></tr>
+            <tr><td><code>-IncludeCritical</code></td><td class="tag">switch</td><td class="dim">Off</td><td>Also collect Critical events. By default only Error and Warning are collected.</td></tr>
+            <tr><td><code>-OpenReport</code></td><td class="tag">switch</td><td class="dim">Off</td><td>Open the HTML report in your browser when done. It also opens if you were prompted for dates.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= Examples ================= -->
+    <section id="examples">
+      <p class="eyebrow">Recipes</p>
+      <h2>Examples to copy</h2>
+      <p class="sec-intro">Run these from the folder that holds the script.</p>
+
+      <div class="ex-grid">
+        <div class="ex"><h3>Interactive, prompts for the range</h3><div class="code"><pre class="prompt">.\Get-AppEventReport.ps1</pre></div></div>
+        <div class="ex"><h3>A specific date range</h3><div class="code"><pre class="prompt wrap-lines">.\Get-AppEventReport.ps1 -StartDate 2026-10-01 -EndDate 2026-10-13</pre></div></div>
+        <div class="ex"><h3>Just one day</h3><div class="code"><pre class="prompt wrap-lines">.\Get-AppEventReport.ps1 -StartDate 2026-10-13 -EndDate 2026-10-13</pre></div></div>
+        <div class="ex"><h3>A time window inside a day</h3><div class="code"><pre class="prompt wrap-lines">.\Get-AppEventReport.ps1 -StartDate "2026-10-13 14:00" -EndDate "2026-10-13 15:00"</pre></div></div>
+        <div class="ex"><h3>Include Critical events too</h3><div class="code"><pre class="prompt wrap-lines">.\Get-AppEventReport.ps1 -StartDate 2026-10-01 -EndDate 2026-10-13 -IncludeCritical</pre></div></div>
+        <div class="ex"><h3>Custom folder, open when done</h3><div class="code"><pre class="prompt wrap-lines">.\Get-AppEventReport.ps1 -StartDate 2026-10-01 -EndDate 2026-10-13 -OutputFolder D:\Reports -OpenReport</pre></div></div>
+        <div class="ex"><h3>Last 30 days, no prompts</h3><div class="code"><pre class="prompt wrap-lines">.\Get-AppEventReport.ps1 -StartDate (Get-Date).AddDays(-30) -EndDate (Get-Date) -OpenReport</pre></div></div>
+      </div>
+    </section>
+
+    <!-- ================= Output ================= -->
+    <section id="output">
+      <p class="eyebrow">Output</p>
+      <h2>Three files per run</h2>
+      <p class="sec-intro">Each file name carries a timestamp, so a new run never overwrites an old one. They are saved in <code>-OutputFolder</code>.</p>
+
+      <ul class="files">
+        <li><span class="ext">.html</span><div><h3>The interactive report</h3><p><code>AppEvents_YYYYMMDD_HHMMSS.html</code> is one self-contained file. Email it or open it on any machine, no internet needed.</p></div></li>
+        <li><span class="ext">.xlsx</span><div><h3>Excel workbook</h3><p><code>AppEvents_YYYYMMDD_HHMMSS.xlsx</code> holds every event found in the date range, with a colored header, filter buttons and a frozen top row.</p></div></li>
+        <li><span class="ext">.csv</span><div><h3>Plain CSV</h3><p><code>AppEvents_YYYYMMDD_HHMMSS.csv</code> has the same data in UTF-8, for scripts and other tools.</p></div></li>
+      </ul>
+
+      <h3 style="margin:40px 0 14px">Columns</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>Date</code></td><td>When the event was logged, local time, <code>yyyy-MM-dd HH:mm:ss</code></td></tr>
+            <tr><td><code>Level</code></td><td>Error, Warning, or Critical with <code>-IncludeCritical</code></td></tr>
+            <tr><td><code>Source</code></td><td>The application or service that logged it, such as <code>VSS</code> or <code>Application Error</code></td></tr>
+            <tr><td><code>EventID</code></td><td>The event ID number</td></tr>
+            <tr><td><code>Category</code></td><td>Task category, often <code>None</code></td></tr>
+            <tr><td><code>Computer</code></td><td>Computer name</td></tr>
+            <tr><td><code>RecordId</code></td><td>Unique record number in the log</td></tr>
+            <tr><td><code>Message</code></td><td>The full text from the General tab in Event Viewer</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= Report ================= -->
+    <section id="report">
+      <p class="eyebrow">The HTML report</p>
+      <h2>Find the event, then read its details</h2>
+      <p class="sec-intro">The report opens with totals and charts, then a table you can search, sort and filter. Click any row to read the full General message.</p>
+
+      <div class="split">
+        <ul class="ledger">
+          <li><b>Summary and charts</b><span>Totals for events, errors, warnings and sources, an events-per-day chart, a severity split and the top sources. Click a source to filter the table to it.</span></li>
+          <li><b>Search and filters</b><span>The search box checks source, event ID, category and message text. The All, Errors and Warnings tabs and the source menu narrow the table.</span></li>
+          <li><b>Sorting and paging</b><span>Click a column header to sort, click again to reverse. Choose 25, 50, 100 or 250 rows per page.</span></li>
+          <li><b>Detail panel</b><span>Click a row to open every field and the full message. Copy copies the message. Previous and Next, or the left and right arrow keys, move between events. Esc closes it.</span></li>
+          <li><b>Light and dark</b><span>The sun and moon button switches the theme and the report remembers your choice.</span></li>
+        </ul>
+
+        <div class="mock" role="img" aria-label="Illustration of the report: summary figures, a table with an Error and a Warning row, and the detail panel for a Volume Shadow Copy Service error">
+          <div class="mock-cap">Illustration with sample rows</div>
+          <div class="mock-kpis">
+            <div><b>3</b><span>Total events</span></div>
+            <div><b>2</b><span>Errors</span></div>
+            <div><b>1</b><span>Warnings</span></div>
+          </div>
+          <div class="mock-rows">
+            <table>
+              <tbody>
+                <tr class="sel"><td>2026-10-13 14:38:50</td><td><span class="pill err">Error</span></td><td>VSS</td><td><span class="eid">8193</span></td></tr>
+                <tr><td>2026-10-13 14:20:11</td><td><span class="pill err">Error</span></td><td>Application Error</td><td><span class="eid">1000</span></td></tr>
+                <tr><td>2026-10-13 13:02:47</td><td><span class="pill warn">Warning</span></td><td>ExampleApp</td><td><span class="eid">2001</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mock-detail">
+            <h4>General info</h4>
+            <pre>Volume Shadow Copy Service error: Unexpected error calling routine QueryFullProcessImageNameW.  hr = 0x80070006, The handle is invalid.
+
+Operation:
+   Executing Asynchronous Operation
+
+Context:
+   Current State: DoSnapshotSet</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Excel ================= -->
+    <section id="excel">
+      <p class="eyebrow">Excel export</p>
+      <h2>Download exactly the rows you need</h2>
+      <div class="callout">
+        <div>
+          <h3>From the report</h3>
+          <p>Click <b>Download Excel (.xlsx)</b> in the toolbar. The file contains the rows that match your current search and filters, not only the page you are looking at.</p>
+          <p>The CSV button next to it works the same way.</p>
+        </div>
+        <div>
+          <h3>To export everything</h3>
+          <ul>
+            <li>Clear the search box.</li>
+            <li>Set the tab to <b>All</b>.</li>
+            <li>Set the source menu to <b>All sources</b>.</li>
+            <li>The script also saves a full, unfiltered <code>.xlsx</code> in the output folder on every run.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Troubleshooting ================= -->
+    <section id="troubleshooting">
+      <p class="eyebrow">Troubleshooting</p>
+      <h2>When something does not work</h2>
+      <p class="sec-intro">Open the line that matches what you see.</p>
+
+      <details>
+        <summary>"Running scripts is disabled on this system"</summary>
+        <div>
+          <p>Allow scripts for the current window, then run the script again in the same window.</p>
+          <div class="code"><pre class="prompt">Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</pre></div>
+        </div>
+      </details>
+      <details>
+        <summary>"The file is not digitally signed" or "cannot be loaded"</summary>
+        <div>
+          <p>The file still carries the downloaded-from-the-internet flag. Remove it once.</p>
+          <div class="code"><pre class="prompt">Unblock-File .\Get-AppEventReport.ps1</pre></div>
+        </div>
+      </details>
+      <details>
+        <summary>"No errors or warnings found in that date range"</summary>
+        <div><p>The range has no matching events. Try a wider range or add <code>-IncludeCritical</code>. Check that <code>-EndDate</code> is not before <code>-StartDate</code>.</p></div>
+      </details>
+      <details>
+        <summary>Some messages say "(Description unavailable) Raw data"</summary>
+        <div><p>The program that logged the event has no message file installed, often because the app was uninstalled. The report shows the raw event data instead.</p></div>
+      </details>
+      <details>
+        <summary>Access denied, or the log cannot be read</summary>
+        <div><p>Open PowerShell with Run as administrator and try again.</p></div>
+      </details>
+      <details>
+        <summary>The script is slow on a long date range</summary>
+        <div><p>Windows reads the log one record at a time. Use a shorter range or run it when the machine is quiet. Tens of thousands of events can take a minute or more.</p></div>
+      </details>
+      <details>
+        <summary>The report is slow to open in the browser</summary>
+        <div><p>Reports with 50,000 or more events are heavy. Use a narrower date range, or work from the <code>.xlsx</code> or <code>.csv</code> file instead.</p></div>
+      </details>
+      <details>
+        <summary>The Desktop path looks odd, with OneDrive in it</summary>
+        <div><p>That is normal when OneDrive backs up your Desktop. Pick another place with <code>-OutputFolder C:\Reports</code>.</p></div>
+      </details>
+      <details>
+        <summary>A long message is cut off in Excel</summary>
+        <div><p>Excel limits a cell to about 32,000 characters, so the script trims anything longer. The full text is still in the report's detail panel.</p></div>
+      </details>
+    </section>
+
+    <!-- ================= Good to know ================= -->
+    <section id="good-to-know">
+      <p class="eyebrow">Good to know</p>
+      <h2>What the script does and does not touch</h2>
+
+      <ul class="ledger" style="margin-bottom:36px">
+        <li><b>Windows only</b><span>It uses <code>Get-WinEvent</code>, which reads the Windows event log.</span></li>
+        <li><b>Application log only</b><span>Security, System and the other logs are not read.</span></li>
+        <li><b>Read-only</b><span>It never changes or clears an event log. It writes only the three report files to the output folder.</span></li>
+        <li><b>Local time</b><span>Dates use the clock of the computer that runs the script.</span></li>
+        <li><b>No dependencies</b><span>The <code>.xlsx</code> is built by the script itself, with no Excel, no extra modules and no internet.</span></li>
+      </ul>
+
+      <h3 style="margin-bottom:10px">Run it on a schedule</h3>
+      <p>Create a Windows Task Scheduler task with this action. Both dates are passed, so no prompt appears and the report does not open. Use <code>-Command</code> so the <code>(Get-Date)</code> parts are evaluated.</p>
+      <div class="code"><pre class="wrap-lines">powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "&amp; 'C:\Scripts\Application-Logs-Viewer\Get-AppEventReport.ps1' -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date)"</pre></div>
+    </section>
+
+    <footer class="foot">
+      <div>
+        <a class="foot-name" href="https://github.com/muhamaddarulhadi/Application-Logs-Viewer" target="_blank" rel="noopener noreferrer">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          Application-Logs-Viewer
+        </a>
+        <p>Made by <a href="https://github.com/muhamaddarulhadi" target="_blank" rel="noopener noreferrer">muhamaddarulhadi</a>. Star or fork the project on GitHub.</p>
+      </div>
+      <a class="btn" href="#top">Back to top</a>
+    </footer>
+  </main>
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
